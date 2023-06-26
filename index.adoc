@@ -1,0 +1,21 @@
+= Efrain Marcelo =
+<efrainmpp@gmail.com>
+
+Engenharia da Computação e Automação 
+
+== Processamento Digital de Imagens ==
+
+=== Exercícios Práticos ===
+
+* link:capitulo2.html[Capitulo 2]
+* link:capitulo3.html[Capitulo 3]
+* link:capitulo4.html[Capitulo 4]
+* link:capitulo5.html[Capitulo 5]
+* link:capitulo6.html[Capitulo 6]
+* link:capitulo7.html[Capitulo 7]
+* link:capitulo8.html[Capitulo 8]
+* link:capitulo9.html[Capitulo 9]
+* link:capitulo10.html[Capitulo 10]
+* link:capitulo11.html[Capitulo 11]
+* link:capitulo12.html[Capitulo 12]
+* link:capitulo13.html[Capitulo 13]
