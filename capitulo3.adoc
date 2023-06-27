@@ -1,0 +1,19 @@
+= DCA0445: Processamento Digital de Imagens =
+
+Efrain Marcelo <efrainmpp@gmail.com>
+
+== Questões Capitulo 3 - Serialização de dados em ponto flutuante via FileStorage ==
+
+=== Exercício 1 ===
+
+Crie um programa que gere uma imagem de dimensões 256x256 pixels contendo uma senóide de 4 períodos com amplitude de 127 desenhada na horizontal.Grave a imagem no formato PNG e no formato YML. Compare os arquivos gerados, extraindo uma linha de cada imagem gravada e comparando a diferença entre elas. Trace um gráfico da diferença calculada ao longo da linha correspondente extraída nas imagens. O que você observa?
+
+image::code/chapter_03/senoide-256.png[title="Imagem em PNG"]
+
+image::code/chapter_03/senoide-256.yml[title="Imagem em YML"]
+
+[source,python]
+----	
+include::code/chapter_03/filestorage.py[title="filestorage.py"]
+----
+
