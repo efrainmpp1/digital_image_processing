@@ -1,0 +1,18 @@
+= DCA0445: Processamento Digital de Imagens =
+
+Efrain Marcelo <efrainmpp@gmail.com>
+
+== Questões Capitulo 4 - Decomposição de imagens em planos de bits ==
+
+=== Exercício 1 ===
+
+Eescreva um programa que recupere a imagem codificada de uma imagem resultante de esteganografia. Lembre-se que os bits menos significativos dos pixels da imagem fornecida deverão compor os bits mais significativos dos pixels da imagem recuperada. O programa deve receber como parâmetros de linha de comando o nome da imagem resultante da esteganografia. 
+
+image::code/chapter_04/esteganografia.png[title="Imagem de Entrada"]
+
+image::code/chapter_04/imagem_recuperada.png[title="Imagem Recuperada"]
+
+[source,python]
+----	
+include::code/chapter_04/recover_image.py[title="recover_image.py"]
+----
