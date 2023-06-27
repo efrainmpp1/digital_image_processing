@@ -1,9 +1,9 @@
 = Efrain Marcelo =
-<efrainmpp@gmail.com>
+ <efrainmpp@gmail.com>
 
 Engenharia da Computação e Automação 
 
-== Processamento Digital de Imagens ==
+== DCA0445 - PROCESSAMENTO DIGITAL DE IMAGENS ==
 
 === Exercícios Práticos ===
 
