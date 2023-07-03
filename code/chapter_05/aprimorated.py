@@ -1,51 +1,73 @@
 import cv2
+import requests
 import numpy as np
+from io import BytesIO
 
-def count_bubbles(image):
-    # Copiar a imagem original para preservar os dados originais
-    labeled_image = image.copy()
+def main():
+    image_url = "https://agostinhobritojr.github.io/tutorial/pdi/figs/bolhas.png"
 
-    # Definir valores para os rótulos dos objetos e dos buracos
-    object_label = 1
-    hole_label = -1
+    response = requests.get(image_url)
+    if response.status_code != 200:
+        print("Erro ao fazer o download da imagem")
+        return
 
-    # Marcar os objetos que tocam as bordas da imagem
-    height, width = image.shape
-    border_label = np.zeros((height, width), dtype=np.uint8)
-    border_label[0, :] = border_label[:, 0] = border_label[height-1, :] = border_label[:, width-1] = 1
+    image = cv2.imdecode(np.frombuffer(response.content, np.uint8), cv2.IMREAD_GRAYSCALE)
 
-    # Percorrer a imagem para rotular os objetos e os buracos
+    if image is None:
+        print("Imagem não carregou corretamente")
+        return
+
+    cv2.imshow("imagem original", image)
+
+    width = image.shape[1]
+    height = image.shape[0]
+    print(f"{width}x{height}")
+
+    # Excluir bordas
+    for i in range(height):
+        if image[0, i] == 255:
+            cv2.floodFill(image, None, (i, 0), 0)
+        if image[width - 1, i] == 255:
+            cv2.floodFill(image, None, (i, width - 1), 0)
+
+    for i in range(width):
+        if image[i, 0] == 255:
+            cv2.floodFill(image, None, (0, i), 0)
+        if image[i, height - 1] == 255:
+            cv2.floodFill(image, None, (height - 1, i), 0)
+
+    cv2.imwrite("image_semborda.png", image)
+
+    # Buscar objetos presentes
+    nobjects = 0
     for i in range(height):
         for j in range(width):
-            if labeled_image[i, j] == 255:
-                # Achou um objeto
-                if border_label[i, j] == 0:
-                    # Se o objeto não toca a borda, rotular como objeto
-                    cv2.floodFill(labeled_image, None, (j, i), object_label)
-                    object_label += 1
-                else:
-                    # Se o objeto toca a borda, rotular como buraco
-                    cv2.floodFill(labeled_image, None, (j, i), hole_label)
-                    hole_label -= 1
+            if image[i, j] == 255:
+                nobjects += 1
+                cv2.floodFill(image, None, (j, i), nobjects)
 
-    # Contar o número de objetos excluindo os buracos
-    n_objects = object_label - 1
+    equalized = cv2.equalizeHist(image)
+    cv2.imshow("imagem contada", image)
+    cv2.imshow("realce", equalized)
 
-    return labeled_image, n_objects
+    cv2.imwrite("image_realce.png", equalized)
 
-# Carregar a imagem
-image = cv2.imread('image.png', cv2.IMREAD_GRAYSCALE)
+    # Pintar fundo de branco para contagem de buracos
+    cv2.floodFill(image, None, (0, 0), 255)
 
-# Aplicar um limiar para binarizar a imagem (caso necessário)
-_, binary_image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY)
+    # Procurando buracos
+    counter = 0
+    for i in range(height):
+        for j in range(width):
+            if image[i, j] == 0 and image[i, j - 1] > counter:
+                counter += 1
+                cv2.floodFill(image, None, (j - 1, i), counter)
 
-# Realizar a contagem de bolhas
-labeled_image, n_objects = count_bubbles(binary_image)
+    print(f"bolhas: {nobjects} e bolhas com buracos: {counter}")
+    cv2.imshow("image final", image)
+    cv2.imwrite("labeling.png", image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-# Exibir os resultados
-cv2.imshow('Original Image', image)
-cv2.imshow('Labeled Image', labeled_image)
-print('Número de Bolhas:', n_objects)
-
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+if __name__ == "__main__":
+    main()
