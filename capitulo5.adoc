@@ -25,7 +25,16 @@ regiões com ou sem buracos internos que existam na cena. Assuma
 que objetos com mais de um buraco podem existir. Inclua suporte 
 no seu algoritmo para não contar bolhas que tocam as bordas da 
 imagem. Não se pode presumir, a priori, que elas tenham buracos 
-ou não. 
+ou não.
+
+image::https://agostinhobritojr.github.io/tutorial/pdi/figs/bolhas.png[title="Imagem de Entrada"]
+
+image::code/chapter_05/image_realce.png[title="Imagem com Realce"]
+
+image::code/chapter_05/image_semborda.png[title="Imagem sem Borda"]
+
+image::code/chapter_05/labeling.png[title="Labeling"]
+
 
 [source,python]
 ----	
