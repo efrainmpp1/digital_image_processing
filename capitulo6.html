@@ -522,67 +522,46 @@ alarme. Utilize uma função de comparação que julgar conveniente.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-python" data-lang="python">import cv2
-import numpy as np
 
-def calculate_histogram(image):
-    # Converter a imagem para escala de cinza (caso necessário)
-    if len(image.shape) &gt; 2:
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+def histograma(imagem, bins):
+    hist = cv2.calcHist([imagem], [0], None, [bins], [0, 256])
+    return hist
 
-    # Calcular o histograma da imagem
-    histogram = cv2.calcHist([image], [0], None, [256], [0, 256])
+def main():
+    cap = cv2.VideoCapture(0)
 
-    # Normalizar o histograma
-    histogram = cv2.normalize(histogram, histogram)
+    if not cap.isOpened():
+        print("Câmeras indisponíveis")
+        return
 
-    # Retornar o histograma normalizado
-    return histogram
+    ret, imagem = cap.read()
+    hist_novo = histograma(imagem, 256)
+    hist_anterior = hist_novo.copy()
+    temp = 0
 
-def compare_histograms(hist1, hist2):
-    # Calcular a correlação de Pearson entre os histogramas
-    correlation = cv2.compareHist(hist1, hist2, cv2.HISTCMP_CORREL)
+    while True:
+        ret, imagem = cap.read()
+        imagem_gray = cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY)
+        hist_novo = histograma(imagem_gray, 256)
 
-    return correlation
+        compara = cv2.compareHist(hist_novo, hist_anterior, cv2.HISTCMP_CORREL)
 
-cap = cv2.VideoCapture(0)
+        if compara &lt;= 0.93:  # Altere o valor de comparação conforme necessário
+            print("Movimento detectado - Ordem:", temp)
+            temp += 1
 
-if not cap.isOpened():
-    print("Câmera indisponível")
-    exit()
+        cv2.imshow("Detector de Movimento", imagem)
+        
+        if cv2.waitKey(1) == ord('q'):  # Pressione 'q' para sair
+            break
 
-threshold = 0.9  # Limiar de similaridade para ativar o alarme
-previous_histogram = None
+        hist_anterior = hist_novo.copy()
 
-while True:
-    ret, frame = cap.read()
+    cap.release()
+    cv2.destroyAllWindows()
 
-    if not ret:
-        print("Não foi possível capturar a imagem")
-        break
-
-    # Calcular o histograma da imagem atual
-    current_histogram = calculate_histogram(frame)
-
-    if previous_histogram is not None:
-        # Comparar o histograma atual com o histograma anterior
-        similarity = compare_histograms(current_histogram, previous_histogram)
-
-        # Verificar se a diferença entre os histogramas ultrapassou o limiar
-        if similarity &lt; threshold:
-            print("Alarme ativado!")
-
-    # Atualizar o histograma anterior com o histograma atual
-    previous_histogram = current_histogram
-
-    # Exibir a imagem
-    cv2.imshow("Frame", frame)
-
-    key = cv2.waitKey(1)
-    if key == 27:
-        break
-
-cap.release()
-cv2.destroyAllWindows()</code></pre>
+if __name__ == "__main__":
+    main()</code></pre>
 </div>
 </div>
 </div>
