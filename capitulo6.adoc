@@ -2,7 +2,7 @@
 
 Efrain Marcelo <efrainmpp@gmail.com>
 
-== Questões Capitulo 5 - Preenchendo regiões ==
+== Questões Capitulo 6 - Manipulando Histogramas ==
 
 === Exercício 1  ===
 
