@@ -1,58 +1,126 @@
 import cv2
 import numpy as np
+import sys
 
-def homomorphic_filter(image, cutoff_freq, gamma_l, gamma_h, c):
-    # Aplica a transformada de Fourier na imagem
-    complex_image = cv2.dft(np.float32(image), flags=cv2.DFT_COMPLEX_OUTPUT)
-    complex_image_shifted = np.fft.fftshift(complex_image)
 
-    # Calcula o espectro de magnitude
-    magnitude_spectrum = cv2.magnitude(complex_image_shifted[:,:,0], complex_image_shifted[:,:,1])
-    magnitude_spectrum = np.log1p(magnitude_spectrum)
+def shift_dft(image):
+    rows, cols = image.shape[:2]
 
-    # Aplica o filtro homomórfico no domínio da frequência
-    rows, cols = image.shape
-    center_row, center_col = rows // 2, cols // 2
+    regions = [
+        image[rows // 2:rows, cols // 2:cols],
+        image[rows // 2:rows, 0:cols // 2],
+        image[0:rows // 2, cols // 2:cols],
+        image[0:rows // 2, 0:cols // 2]]
 
-    # Cria a matriz de filtro homomórfico
-    filter_ = np.ones((rows, cols), dtype=np.float32)
+    a = np.hstack(regions[0:2])
+    b = np.hstack(regions[2:4])
+
+    return np.vstack((a, b))
+
+
+def define_homomorphic_filter(rows, cols, d_0, c, gamma_high, gamma_low):
+    homomorphic = np.zeros((rows, cols))
+
+    rows_half = rows // 2
+    cols_half = cols // 2
 
     for i in range(rows):
+        i_diff = i - rows_half
+        i_diff_square = i_diff * i_diff
+
         for j in range(cols):
-            dist_squared = (i - center_row)**2 + (j - center_col)**2
-            filter_[i, j] = (gamma_h - gamma_l) * (1 - np.exp(-c * dist_squared / cutoff_freq**2)) + gamma_l
+            j_diff = j - cols_half
+            j_diff_square = j_diff * j_diff
 
-    # Aplica o filtro no espectro de magnitude
-    filtered_spectrum = magnitude_spectrum * filter_
+            d_2 = i_diff_square + j_diff_square
+            exp_value = np.exp(-c * d_2 / (d_0 ** 2))
+            homomorphic[i, j] = (gamma_high - gamma_low) * (1 - exp_value) + gamma_low
 
-    # Retorna ao domínio espacial realizando a transformada inversa
-    filtered_complex = np.zeros(complex_image_shifted.shape, dtype=np.float32)
-    filtered_complex[:,:,0] = np.expm1(filtered_spectrum)
-    filtered_complex_shifted = np.fft.ifftshift(filtered_complex)
-    filtered_image = cv2.idft(filtered_complex_shifted)
-    filtered_image = cv2.magnitude(filtered_image[:,:,0], filtered_image[:,:,1])
-    filtered_image = np.exp(filtered_image) - 1
+    return cv2.merge([homomorphic, homomorphic])
 
-    # Normaliza a imagem filtrada para exibição
-    filtered_image = cv2.normalize(filtered_image, None, 0, 255, cv2.NORM_MINMAX)
-    filtered_image = np.uint8(filtered_image)
 
-    return filtered_image
+def show_images(window_names, images, time):
+    for image, window_name in zip(images, window_names):
+        cv2.imshow(window_name, image)
 
-# Carrega a imagem mal iluminada
-image = cv2.imread('mal_iluminada.png', cv2.IMREAD_GRAYSCALE)
+    return chr(cv2.waitKey(time) & 255)
 
-# Define os parâmetros do filtro homomórfico
-cutoff_freq = 30
-gamma_l = 0.3
-gamma_h = 1.5
-c = 1
 
-# Aplica o filtro homomórfico na imagem
-filtered_image = homomorphic_filter(image, cutoff_freq, gamma_l, gamma_h, c)
+def options(key, c, gamma_high, gamma_low, d0):
+    if key == "C":
+        c += 0.5
 
-# Mostra a imagem original e a imagem filtrada
-cv2.imshow('Original', image)
-cv2.imshow('Filtrada', filtered_image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+    elif key == "c":
+        c -= 0.5
+
+        if c < 0:
+            c = 0
+
+    elif key == "G":
+        gamma_low += 0.5
+
+    elif key == "g":
+        gamma_low -= 0.5
+        if gamma_low < gamma_low + 1:
+            gamma_low = gamma_low + 1
+
+    elif key == "D":
+        d0 += 0.5
+
+    elif key == "d":
+        d0 -= 0.5
+
+    return c, gamma_high, gamma_low, d0
+
+
+def main():
+    original_image = cv2.imread(sys.argv[1], cv2.IMREAD_GRAYSCALE)
+    original_image = cv2.resize(original_image, (1280, 720))
+
+    dft_rows = cv2.getOptimalDFTSize(original_image.shape[0])
+    dft_cols = cv2.getOptimalDFTSize(original_image.shape[1])
+
+    padded_rows = dft_rows - original_image.shape[0]
+    padded_cols = dft_cols - original_image.shape[1]
+
+    original_window_name = "original image"
+    filtered_window_name = "Homomorphic filter"
+
+    c = 1
+    gamma_high = 2
+    gamma_low = 0.5
+    d0 = 8
+
+    homomorphic = define_homomorphic_filter(dft_rows, dft_cols, d0, c, gamma_high, gamma_low)
+
+    padded = cv2.copyMakeBorder(original_image, 0, padded_rows, 0, padded_cols, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+
+    key = "não"
+
+    while "\x1b" != key:  # esc
+        planes = np.log(padded.astype(np.float64) + 1)
+        planes = cv2.merge([planes, np.zeros(padded.shape, np.float64)])
+
+        dft_image = cv2.dft(planes, flags=cv2.DFT_COMPLEX_OUTPUT)
+
+        shifted_image = shift_dft(dft_image)
+
+        filtered_image = cv2.mulSpectrums(shifted_image, homomorphic, 0)
+
+        dft_image = shift_dft(filtered_image)
+
+        image = cv2.idft(dft_image, flags=cv2.DFT_SCALE | cv2.DFT_REAL_OUTPUT)
+
+        cv2.normalize(image, image, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_64F)
+
+        key = show_images([original_window_name, filtered_window_name], [original_image, image], 0)
+
+        c, gamma_high, gamma_low, d0 = options(key, c, gamma_high, gamma_low, d0)
+
+        print("c {}, gamma high {}, gamma low {}, d_0 {}".format(c, gamma_high, gamma_low, d0))
+
+        homomorphic = define_homomorphic_filter(dft_rows, dft_cols, d0, c, gamma_high, gamma_low)
+
+
+if __name__ == '__main__':
+    main()
