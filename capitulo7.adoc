@@ -1,0 +1,16 @@
+= DCA0445: Processamento Digital de Imagens =
+
+Efrain Marcelo <efrainmpp@gmail.com>
+
+== Questões Capitulo 6 - Preenchendo regiões ==
+
+=== Exercício 1  ===
+
+Implemente um programa laplgauss.py. O programa deverá acrescentar mais uma funcionalidade ao exemplo fornecido, permitindo que seja calculado o laplaciano do gaussiano das imagens capturadas. Compare o resultado desse filtro com a simples aplicação do filtro laplaciano.
+
+[source,python]
+----	
+include::code/chapter_07/laplgauss.py[title="laplgauss.py"]
+----
+
+image::code/chapter_07/comparativos.gif[title="Comparativos"]
