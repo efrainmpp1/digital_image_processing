@@ -2,7 +2,7 @@
 
 Efrain Marcelo <efrainmpp@gmail.com>
 
-== Questões Capitulo 6 - Preenchendo regiões ==
+== Questões Capitulo 7 - Filtragem no domínio Espacial ==
 
 === Exercício 1  ===
 
