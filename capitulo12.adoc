@@ -1,0 +1,25 @@
+= DCA0445: Processamento Digital de Imagens =
+
+Efrain Marcelo <efrainmpp@gmail.com>
+
+== Questões Capitulo 12 - Quantização Vetorial com K-Means ==
+
+=== Exercício 1  ===
+
+Prepare um programa exemplo onde a execução do código se dê usando o parâmetro nRodadas=1 e 
+inciar os centros de forma aleatória usando o parâmetro KMEANS_RANDOM_CENTERS ao invés de KMEANS_PP_CENTERS. 
+Realize 10 rodadas diferentes do algoritmo e compare as imagens produzidas. Explique porque elas podem diferir tanto.
+
+
+[source,python]
+----	
+include::code/chapter_12/kmeans.py[title="kmeans.py"]
+----
+
+Quando executamos o algoritmo de K-means com diferentes números de rodadas, é possível observar diferenças nas imagens produzidas devido à natureza estocástica do algoritmo. O algoritmo de K-means é sensível à inicialização dos centros de cluster, e diferentes inicializações podem levar a diferentes resultados finais.
+
+A inicialização aleatória dos centros de cluster pode levar a diferentes agrupamentos iniciais, o que, por sua vez, pode resultar em diferentes soluções de agrupamento finais. Cada rodada do algoritmo tenta encontrar os melhores centros de cluster que minimizam a função objetivo (geralmente a soma dos quadrados das distâncias dos pontos aos centros), mas devido à aleatoriedade na inicialização, diferentes rodadas podem convergir para mínimos locais diferentes.
+
+Além disso, o número de rodadas também pode afetar os resultados. Executar o algoritmo com um número maior de rodadas pode ajudar a melhorar a qualidade do agrupamento, permitindo que o algoritmo explore diferentes configurações de centros de cluster e encontre uma solução melhor.
+
+Portanto, as diferenças nas imagens produzidas ao executar o algoritmo de K-means com 10 rodadas diferentes podem ser atribuídas à aleatoriedade na inicialização dos centros de cluster e à busca por mínimos locais diferentes durante o processo de otimização.
