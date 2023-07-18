@@ -49,7 +49,7 @@ def calculate_magnitude_spectrum(image):
     return magnitude
 
 # Carrega a imagem
-image = cv2.imread("image.jpg", cv2.IMREAD_GRAYSCALE)
+image = cv2.imread("../chapter_03/senoide-256.png", cv2.IMREAD_GRAYSCALE)
 
 # Calcula o espectro de magnitude
 magnitude_spectrum = calculate_magnitude_spectrum(image)
