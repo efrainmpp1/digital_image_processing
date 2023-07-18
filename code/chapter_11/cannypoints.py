@@ -16,7 +16,7 @@ def enhance_canny_points(image, canny_image, point_radius):
     return enhanced_image
 
 # Carrega a imagem pontilhista básica
-points_image = cv2.imread('pontos.jpg', cv2.IMREAD_GRAYSCALE)
+points_image = cv2.imread('../chapter_08/valorant.png', cv2.IMREAD_GRAYSCALE)
 
 # Aplica o algoritmo de Canny para detectar bordas
 canny_image = cv2.Canny(points_image, 50, 150)
@@ -30,5 +30,6 @@ enhanced_image = enhance_canny_points(points_image, canny_image, point_radius)
 # Mostra a imagem pontilhista original e a imagem melhorada
 cv2.imshow('Pontos Original', points_image)
 cv2.imshow('Pontos Melhorada', enhanced_image)
+cv2.imwrite('resultado.png',enhanced_image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
