@@ -1,0 +1,17 @@
+= DCA0445: Processamento Digital de Imagens =
+
+Efrain Marcelo <efrainmpp@gmail.com>
+
+== Questões Capitulo 10 - Filtragem no domínio Frequência ==
+
+=== Exercício 1  ===
+
+Implemente o filtro homomórfico para melhorar imagens com iluminação irregular. 
+Crie uma cena mal iluminada e ajuste os parâmetros do filtro homomórfico para corrigir a 
+iluminação da melhor forma possível. Assuma que a imagem fornecida é em tons de cinza.
+
+
+[source,python]
+----	
+include::code/chapter_10/homomorphic_filter.py[title="homomorphic_filter.py"]
+----
